@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Agregar Nueva Propiedad</title>
+  <link rel="stylesheet" href="/styles/edit.css">
+  <style>
+    .image-item {
+      position: relative;
+      display: inline-block;
+    }
+    .delete-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: red;
+      color: #fff;
+      border: none;
+      padding: 2px 6px;
+      border-radius: 0 4px 0 4px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .image-item:hover .delete-btn {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Agregar Nueva Propiedad</h1>
+    <form id="createForm" action="/propiedades" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      
+      <label for="title">Título</label>
+      <input type="text" id="title" name="title" required>
+      
+      <label for="description">Descripción</label>
+      <textarea id="description" name="description" rows="4" required></textarea>
+      
+      <label for="price">Precio</label>
+      <input type="number" id="price" name="price" min="0" required>
+      
+      <label for="ubication">Ubicación</label>
+      <input type="text" id="ubication" name="ubication" placeholder="Ciudad, Estado...">
+      
+      <label for="number_of_bathrooms">Número de Baños</label>
+      <input type="number" id="number_of_bathrooms" name="number_of_bathrooms" min="0" required>
+      
+      <label for="number_of_rooms">Número de Habitaciones</label>
+      <input type="number" id="number_of_rooms" name="number_of_rooms" min="0" required>
+      
+      <label for="total_area">Área Total (m²)</label>
+      <input type="number" step="any" id="total_area" name="total_area" min="0" required>
+      
+      <label for="built_area">Área Construida (m²)</label>
+      <input type="number" step="any" id="built_area" name="built_area" min="0" required>
+      
+      <div id="coverSection">
+        <h3>Imagen de Portada</h3>
+        <div id="coverContainer">
+          <div id="coverInputSection" class="upload-form">
+            <input type="file" id="coverInput" name="cover" accept="image/*" style="display:none;">
+            <div class="coverUploadTrigger">+</div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="nonCoverSection" class="existing-images">
+        <h3>Otras Imágenes</h3>
+        <div class="image-list" id="nonCoverContainer">
+          <div class="upload-form" id="nonCoverInputSection">
+            <input type="file" id="nonCoverInput" name="images" accept="image/*" multiple style="display:none;">
+            <div class="nonCoverUploadTrigger">+</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-buttons">
+        <button type="button" class="cancel-btn" id="cancelBtn">Cancelar</button>
+        <button type="submit">Guardar Propiedad</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      if (confirm('¿Estás seguro de que deseas cancelar? Se perderán los cambios.')) {
+        window.location.href = '/admin';
+      }
+    });
+    
+ 
+    const coverInputSection = document.getElementById('coverInputSection');
+    const coverInput = document.getElementById('coverInput');
+    const coverContainer = document.getElementById('coverContainer');
+    
+    coverInputSection.addEventListener('click', () => {
+      coverInput.click();
+    });
+    
+    coverInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const previewDiv = document.createElement('div');
+          previewDiv.className = 'image-item';
+          const imgEl = document.createElement('img');
+          imgEl.src = e.target.result;
+          imgEl.alt = 'Vista previa de la portada';
+          previewDiv.appendChild(imgEl);
+          const delBtn = document.createElement('button');
+          delBtn.textContent = 'eliminar';
+          delBtn.className = 'delete-btn';
+          delBtn.addEventListener('click', () => {
+            coverInput.value = '';
+            coverContainer.innerHTML = '';
+            coverContainer.appendChild(coverInputSection);
+          });
+          previewDiv.appendChild(delBtn);
+         
+          coverContainer.innerHTML = '';
+          coverContainer.appendChild(previewDiv);
+          coverContainer.appendChild(coverInput);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    
+  
+    const nonCoverInput = document.getElementById('nonCoverInput');
+    const nonCoverContainer = document.getElementById('nonCoverContainer');
+    const nonCoverUploadTrigger = document.getElementById('nonCoverInputSection');
+    let dt = new DataTransfer();
+
+    nonCoverUploadTrigger.addEventListener('click', () => {
+      nonCoverInput.click();
+    });
+    
+    nonCoverInput.addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        dt.items.add(file);
+      });
+      nonCoverInput.files = dt.files;
+      updateNonCoverPreviews();
+    });
+    
+    function updateNonCoverPreviews() {
+      const existingPreviews = nonCoverContainer.querySelectorAll('.non-cover-preview');
+      existingPreviews.forEach(preview => preview.remove());
+      
+      for (let i = 0; i < dt.files.length; i++) {
+        const file = dt.files[i];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const previewDiv = document.createElement('div');
+          previewDiv.classList.add('image-item', 'non-cover-preview');
+          const imgEl = document.createElement('img');
+          imgEl.src = e.target.result;
+          imgEl.alt = 'Vista previa de la imagen';
+          previewDiv.appendChild(imgEl);
+          const delBtn = document.createElement('button');
+          delBtn.textContent = 'eliminar';
+          delBtn.className = 'delete-btn';
+          delBtn.dataset.index = i;
+          delBtn.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index, 10);
+            dt.items.remove(index);
+            nonCoverInput.files = dt.files;
+            updateNonCoverPreviews();
+          });
+          previewDiv.appendChild(delBtn);
+          nonCoverContainer.insertBefore(previewDiv, nonCoverUploadTrigger);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    
+
+    function showToast(message, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.backgroundColor = type === 'success' ? '#4CAF50' : '#F44336';
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+  </script>
+</body>
+</html>

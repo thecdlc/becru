@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Propiedad</title>
+  <link rel="stylesheet" href="/styles/edit.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Editar Propiedad</h1>
+    <form id="editForm" action="/propiedades/<%= property.id %>/editar" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" id="propertyId" name="property_id" value="<%= property.id %>">
+      
+      <label for="title">Título</label>
+      <input type="text" id="title" name="title" value="<%= property.title %>" required>
+
+      <label for="description">Descripción</label>
+      <textarea id="description" name="description" rows="4" required><%= property.description %></textarea>
+
+      <label for="price">Precio</label>
+      <input type="number" id="price" name="price" min="0" value="<%= property.price %>" required>
+
+      <label for="ubication">Ubicación</label>
+      <input type="text" id="ubication" name="ubication" value="<%= property.ubication || '' %>">
+
+      <label for="number_of_bathrooms">Número de Baños</label>
+      <input type="number" id="number_of_bathrooms" name="number_of_bathrooms" min="0" value="<%= property.number_of_bathrooms %>" required>
+
+      <label for="number_of_rooms">Número de Habitaciones</label>
+      <input type="number" id="number_of_rooms" name="number_of_rooms" min="0" value="<%= property.number_of_rooms %>" required>
+
+      <label for="total_area">Área Total (m²)</label>
+      <input type="number" step="any" id="total_area" name="total_area" min="0" value="<%= property.total_area %>" required>
+
+      <label for="built_area">Área Construida (m²)</label>
+      <input type="number" step="any" id="built_area" name="built_area" min="0" value="<%= property.built_area %>" required>
+      
+      <div id="coverSection">
+        <h3>Imagen de Portada</h3>
+        <div id="coverContainer">
+          <% if (property.cover_image_id) { 
+               const coverImage = images.find(img => img.id === property.cover_image_id);
+             %>
+            <% if (coverImage) { %>
+              <div class="image-item" id="coverPreview" data-img-id="<%= coverImage.id %>">
+                <img src="<%= coverImage.filepath %>" alt="Vista previa de la portada">
+                <button class="delete-btn cover-delete-btn" type="button">eliminar</button>
+              </div>
+              <div id="coverInputSection" class="upload-form" style="display:none;">
+                <input type="file" id="coverInput" name="cover" accept="image/*" style="display:none;">
+                <div class="coverUploadTrigger">+</div>
+              </div>
+            <% } %>
+          <% } else { %>
+            <div id="coverInputSection" class="upload-form">
+              <input type="file" id="coverInput" name="cover" accept="image/*" style="display:none;">
+              <div class="coverUploadTrigger">+</div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <div id="nonCoverSection" class="existing-images">
+        <h3>Otras Imágenes</h3>
+        <div class="image-list" id="nonCoverContainer">
+          <% const nonCoverImages = images.filter(img => img.id !== property.cover_image_id); %>
+          <% nonCoverImages.forEach(function(img) { %>
+            <div class="image-item" data-img-id="<%= img.id %>">
+              <img src="<%= img.filepath %>" alt="Imagen <%= property.title %>">
+              <button class="delete-btn" type="button">eliminar</button>
+            </div>
+          <% }); %>
+          <div class="upload-form" id="nonCoverInputSection">
+            <input type="file" id="nonCoverInput" name="images" accept="image/*" multiple style="display:none;">
+            <div class="nonCoverUploadTrigger">+</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-buttons">
+        <button type="button" class="cancel-btn" id="cancelBtn">Cancelar</button>
+        <button type="submit">Actualizar Propiedad</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="confirmationModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <p>¿Estás seguro de que quieres eliminar esta imagen?</p>
+      <div class="modal-buttons">
+        <button id="confirmDelete">Eliminar</button>
+        <button id="cancelDelete">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const propertyId = document.getElementById('propertyId').value;
+      
+   
+      const coverContainer = document.getElementById('coverContainer');
+      function initCoverUpload() {
+        const coverInputSection = document.getElementById('coverInputSection');
+        const coverInput = document.getElementById('coverInput');
+        if (coverInputSection && coverInput) {
+          coverInputSection.addEventListener('click', () => {
+            coverInput.click();
+          });
+          coverInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('property_id', propertyId);
+            formData.append('cover', file);
+            try {
+              const res = await fetch('/images', { method: 'POST', body: formData });
+              if (!res.ok) throw new Error('Error en la respuesta');
+              const data = await res.json();
+              if (data.success && data.coverImage) {
+                coverContainer.innerHTML = `
+                  <div class="image-item" id="coverPreview" data-img-id="${data.coverImage.id}">
+                    <img src="${data.coverImage.filepath}" alt="Vista previa de la portada">
+                    <button class="delete-btn cover-delete-btn" type="button">eliminar</button>
+                  </div>
+                  <div id="coverInputSection" class="upload-form" style="display:none;">
+                    <input type="file" id="coverInput" name="cover" accept="image/*" style="display:none;">
+                    <div class="coverUploadTrigger">+</div>
+                  </div>
+                `;
+                initCoverUpload(); 
+                showToast('Imagen de portada subida correctamente', 'success');
+              } else {
+                showToast(data.message || 'Error subiendo la imagen de portada', 'error');
+              }
+            } catch (err) {
+              console.error(err);
+              showToast('Error en la solicitud', 'error');
+            }
+          });
+        }
+      }
+      initCoverUpload();
+      
+   
+      const nonCoverInputSection = document.getElementById('nonCoverInputSection');
+      const nonCoverInput = document.getElementById('nonCoverInput');
+      const nonCoverContainer = document.getElementById('nonCoverContainer');
+      nonCoverInputSection.addEventListener('click', () => {
+        nonCoverInput.click();
+      });
+      nonCoverInput.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+        const formData = new FormData();
+        formData.append('property_id', propertyId);
+        files.forEach(file => {
+          formData.append('images', file);
+        });
+        try {
+          const res = await fetch('/images', { method: 'POST', body: formData });
+          if (!res.ok) throw new Error('Error en la respuesta');
+          const data = await res.json();
+          if (data.success && data.additionalImages) {
+            data.additionalImages.forEach(img => {
+              const div = document.createElement('div');
+              div.className = 'image-item';
+              div.setAttribute('data-img-id', img.id);
+              div.innerHTML = `
+                <img src="${img.filepath}" alt="Imagen ${img.filename}">
+                <button class="delete-btn" type="button">eliminar</button>
+              `;
+              nonCoverContainer.insertBefore(div, nonCoverInputSection);
+            });
+            nonCoverInput.value = "";
+            showToast('Imágenes adicionales subidas correctamente', 'success');
+          } else {
+            showToast(data.message || 'Error subiendo las imágenes', 'error');
+          }
+        } catch (err) {
+          console.error(err);
+          showToast('Error en la solicitud', 'error');
+        }
+      });
+      
+   
+      document.addEventListener('click', async (e) => {
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (deleteBtn) {
+          e.stopPropagation();
+          if (!confirm('¿Estás seguro de que quieres eliminar esta imagen?')) return;
+          const imageItem = deleteBtn.closest('.image-item');
+          const imageId = imageItem.getAttribute('data-img-id');
+          if (!imageId) {
+            imageItem.remove();
+            showToast('Imagen eliminada correctamente', 'success');
+            return;
+          }
+          try {
+            const res = await fetch(`/images/${imageId}`, {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            if (!res.ok) throw new Error('Error en la respuesta');
+            const data = await res.json();
+            if (data.success) {
+              imageItem.remove();
+              if (coverContainer.querySelectorAll('.image-item').length === 0) {
+                coverContainer.innerHTML = getCoverUploadHTML();
+                initCoverUpload();
+              }
+              showToast('Imagen eliminada correctamente', 'success');
+            } else {
+              showToast('Error eliminando la imagen', 'error');
+            }
+          } catch (err) {
+            console.error(err);
+            showToast('Error en la solicitud', 'error');
+          }
+        }
+      });
+      
+   
+      document.getElementById('cancelBtn').addEventListener('click', () => {
+        if (confirm('¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.')) {
+          window.location.href = '/admin';
+        }
+      });
+      
+   
+      function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'success' ? '#4CAF50' : '#F44336';
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+      }
+      
+      function getCoverUploadHTML() {
+        return `
+          <div id="coverInputSection" class="upload-form">
+            <input type="file" id="coverInput" name="cover" accept="image/*" style="display:none;">
+            <div class="coverUploadTrigger">+</div>
+          </div>
+        `;
+      }
+      
+    });
+  </script>
+</body>
+</html>

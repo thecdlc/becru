@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .login-container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    
+    .logo {
+      max-width: 150px;
+      width: 100%;
+      margin: 0 auto 20px;
+      display: block;
+    }
+    
+    form {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+    
+    label {
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input[type="text"],
+    input[type="password"] {
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007BFF;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    button:hover {
+      background-color: #0056b3;
+    }
+    
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #d9534f; 
+      color: #fff;
+      padding: 15px 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <% if (error) { %>
+    <div id="toast" class="toast"><%= error %></div>
+  <% } %>
+  
+  <div class="login-container">
+    <img src="/images/becru_logo.jpg" alt="Logo" class="logo">
+    <form action="/admin/login" method="POST">
+      <label for="username">Usuario:</label>
+      <input type="text" id="username" name="username" required>
+      
+      <label for="password">Contraseña:</label>
+      <input type="password" id="password" name="password" required>
+      
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const toast = document.getElementById('toast');
+      if (toast) {
+        setTimeout(() => {
+          toast.classList.add('show');
+        }, 100);
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      }
+    });
+  </script>
+</body>
+</html>

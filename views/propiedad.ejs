@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title><%= property.title %> - BECRU Inmobiliaria</title>
+  <link rel="stylesheet" href="/styles/propiedad.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="logo">BECRU Inmobiliaria</a>
+    <ul>
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/propiedades">Propiedades</a></li>
+      <li><a href="/contact">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <div class="title-row">
+        <h1><%= property.title %></h1>
+        <span class="price">$<%= property.price.toLocaleString('es-ES') %></span>
+      </div>
+      
+      <!-- Address row with icon -->
+      <div class="address">
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          width="16" 
+          height="16" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          stroke-width="2" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          class="icon-map-pin"
+        >
+          <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <span><%= property.ubication || 'Ubicación no especificada' %></span>
+      </div>
+    </div>
+
+    <% 
+      let sortedImages = [...images];
+      if (property.cover_image_id) {
+        const coverIndex = sortedImages.findIndex(img => img.id === property.cover_image_id);
+        if (coverIndex > 0) {
+          const cover = sortedImages.splice(coverIndex, 1)[0];
+          sortedImages.unshift(cover);
+        }
+      }
+    %>
+
+    <% if (sortedImages.length > 0) { %>
+      <div class="cover-and-thumbs">
+        <div class="cover-image">
+          <img
+            src="<%= sortedImages[0].filepath %>"
+            alt="Portada <%= property.title %>"
+            onclick="openLightbox(0)"
+          >
+        </div>
+        <div class="thumbs">
+          <% for (let i = 1; i < sortedImages.length && i < 5; i++) { %>
+            <img
+              src="<%= sortedImages[i].filepath %>"
+              alt="<%= property.title %>"
+              onclick="openLightbox(<%= i %>)"
+            >
+          <% } %>
+          <button class="btn-see-all" onclick="openLightbox(0)">
+            Ver todas <%= sortedImages.length %> fotos
+          </button>
+        </div>
+      </div>
+    <% } else { %>
+      <p class="no-images">Sin imágenes para esta propiedad.</p>
+    <% } %>
+
+    <div class="vista-general">
+      <div class="header-vista">
+        <h2>Vista General</h2>
+        <a href="/propiedades/<%= property.id %>/pdf" target="_blank" class="btn-print" title="Generar PDF">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+               class="lucide lucide-printer">
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/>
+            <rect x="6" y="14" width="12" height="8" rx="1"/>
+          </svg>
+        </a>
+      </div>
+      <div class="info">
+        <div class="info-item">
+          <span class="info-label">ID:</span>
+          <span class="info-value"><%= property.id %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Ubicación:</span>
+          <span class="info-value"><%= property.ubication || 'No especificada' %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Baños:</span>
+          <span class="info-value"><%= property.number_of_bathrooms %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Habitaciones:</span>
+          <span class="info-value"><%= property.number_of_rooms %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Área Total:</span>
+          <span class="info-value"><%= property.total_area %> m²</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Área Construida:</span>
+          <span class="info-value"><%= property.built_area %> m²</span>
+        </div>
+      </div>
+    </div>
+    
+    
+
+    <div class="desc-form">
+      <div class="main-info">
+        <h2>Descripción</h2>
+        <p><%= property.description || 'Sin descripción disponible.' %></p>
+      </div>
+
+      <div class="contact-agent">
+        <h2>Contáctanos</h2>
+        <form action="/contact" method="POST">
+        
+          
+          <input
+            type="text"
+            name="name"
+            placeholder="Nombre"
+            required
+          >
+          <input
+            type="email"
+            name="email"
+            placeholder="Correo Electrónico"
+            required
+          >
+          <input
+            type="text"
+            name="phone"
+            placeholder="Número"
+            required
+          >
+          <textarea
+            name="message"
+            rows="4"
+            placeholder="Mensaje..."
+          >
+Estoy interesado(a) en esta propiedad.
+          </textarea>
+
+          <div class="form-buttons">
+            <button type="submit" class="btn-contactar">
+              Contactar
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" height="20"
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2"
+                stroke-linecap="round" 
+                stroke-linejoin="round"
+                style="margin-left: 6px; vertical-align: middle;"
+              >
+                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <span class="close-btn" onclick="closeLightbox()">&times;</span>
+    <span class="arrow arrow-prev" onclick="prevImage()">&#10094;</span>
+    <span class="arrow arrow-next" onclick="nextImage()">&#10095;</span>
+
+    <div class="lightbox-content">
+      <img id="lightboxImage" src="" alt="Propiedad">
+    </div>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
+  </div>
+
+  <% if (property.latitude && property.longitude) { %>
+    <div class="map-section">
+      <h2>Ubicación</h2>
+      <div id="map" style="width: 100%; height: 300px;"></div>
+    </div>
+
+    <script>
+      function initMap() {
+        const lat = <%= property.latitude %>;
+        const lng = <%= property.longitude %>;
+        const mapCenter = { lat, lng };
+        const map = new google.maps.Map(document.getElementById('map'), {
+          center: mapCenter,
+          zoom: 15
+        });
+
+        new google.maps.Marker({
+          position: mapCenter,
+          map,
+          title: '<%= property.title %>'
+        });
+      }
+    </script>
+    <script async defer 
+      src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_MAPS_API_KEY %>&callback=initMap">
+    </script>
+  <% } else { %>
+    <p style="margin-top: 30px;">Ubicación no disponible en el mapa.</p>
+  <% } %>
+
+  <% if (featuredProps && featuredProps.length > 0) { %>
+    <section class="featured-section">
+      <h2>Podría Interesarte</h2>
+      <div class="featured-cards">
+        <% featuredProps.forEach((fp) => { %>
+          <div class="featured-card">
+            <a href="/propiedades/<%= fp.id %>">
+              <img 
+                src="<%= fp.coverFilepath || '/images/property-placeholder.jpg' %>" 
+                alt="<%= fp.title %>"
+              >
+              <div class="featured-card-overlay">
+                <button class="btn-ver-detalles">
+                  Ver detalles
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-right">
+                    <path d="M13 5H19V11"/>
+                    <path d="M19 5L5 19"/>
+                  </svg>
+                </button>
+              </div>
+            </a>
+            <div class="featured-card-info">
+              <h3><%= fp.title %></h3>
+              <p class="price">$<%= fp.price.toLocaleString('es-ES') %></p>
+              <div class="featured-card-details">
+                <div class="detail-item">
+                  <span class="detail-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shower-head">
+                      <path d="m4 4 2.5 2.5"/>
+                      <path d="M13.5 6.5a4.95 4.95 0 0 0-7 7"/>
+                      <path d="M15 5 5 15"/>
+                      <path d="M14 17v.01"/>
+                      <path d="M10 16v.01"/>
+                      <path d="M13 13v.01"/>
+                      <path d="M16 10v.01"/>
+                      <path d="M11 20v.01"/>
+                      <path d="M17 14v.01"/>
+                      <path d="M20 11v.01"/>
+                    </svg>
+                  </span>
+                  <span class="detail-value"><%= fp.number_of_bathrooms %></span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bed-single">
+                      <path d="M3 20v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8"/>
+                      <path d="M5 10V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"/>
+                      <path d="M3 18h18"/>
+                    </svg>
+                  </span>
+                  <span class="detail-value"><%= fp.number_of_rooms %></span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-land-plot">
+                      <path d="m12 8 6-3-6-3v10"/>
+                      <path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/>
+                      <path d="m6.49 12.85 11.02 6.3"/>
+                      <path d="M17.51 12.85 6.5 19.15"/>
+                    </svg>
+                  </span>
+                  <span class="detail-value"><%= fp.total_area %> m²</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house">
+                      <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+                      <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    </svg>
+                  </span>
+                  <span class="detail-value"><%= fp.built_area %> m²</span>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-top">
+        <div class="footer-logo">
+          <img src="/images/becru_logo.jpg" alt="BECRU Inmobiliaria Logo">
+          <span>BECRU Inmobiliaria</span>
+        </div>
+        <div class="footer-links">
+          <a href="#about">Sobre Nosotros</a>
+          <a href="#propiedades">Propiedades</a>
+          <a href="#contact">Contacto</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 BECRU Inmobiliaria. Todos los derechos reservados.</p>
+        <p>Jorege Todd No. 101 Col. Santana Maloapan Martínez de La Torre</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    window.IMAGES_ARRAY = <%- JSON.stringify(sortedImages.map(img => img.filepath)) %>;
+
+    let currentIndex = 0;
+    const imagesArray = window.IMAGES_ARRAY || [];
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImage');
+    const lightboxCounter = document.getElementById('lightboxCounter');
+
+    function openLightbox(index) {
+      if (!imagesArray.length) return;
+      currentIndex = index;
+      updateLightboxImage();
+      lightbox.style.display = 'flex';
+    }
+
+    function closeLightbox() {
+      lightbox.style.display = 'none';
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex === 0)
+        ? imagesArray.length - 1
+        : currentIndex - 1;
+      updateLightboxImage();
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % imagesArray.length;
+      updateLightboxImage();
+    }
+
+    function updateLightboxImage() {
+      lightboxImg.src = imagesArray[currentIndex];
+      lightboxCounter.textContent = `${currentIndex + 1}/${imagesArray.length}`;
+    }
+
+    window.onclick = function(e) {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Propiedades - BECRU Inmobiliaria</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/images/becru_logo.jpg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .top-bar {
+            background: #fff;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        .top-bar .left-info span,
+        .top-bar .right-info a {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-right: 15px;
+        }
+
+        .navbar {
+            background: #fff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-decoration: none;
+            color: #D32F2F;
+        }
+
+        .navbar .logo img {
+            height: 40px;
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .navbar ul li a:hover {
+            color: #D32F2F;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1.page-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 2em;
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .property-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .property-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-content h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .card-content p {
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            color: #777;
+            flex-grow: 1;
+        }
+
+        .property-icons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .property-icons span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .property-price {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #D32F2F;
+            margin-bottom: 10px;
+        }
+
+        .btn-view-more {
+            background: #D32F2F;
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            text-align: center;
+            display: block;
+        }
+
+        .btn-view-more:hover {
+            background: #B71C1C;
+        }
+
+        .site-footer {
+            background: #2c3e50;
+            color: #fff;
+            padding: 30px 20px;
+            margin-top: 30px;
+        }
+
+        .site-footer .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .site-footer .footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .site-footer .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .site-footer .footer-logo img {
+            height: 50px;
+            width: auto;
+        }
+
+        .site-footer .footer-logo span {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .site-footer .footer-links a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .site-footer .footer-links a:hover {
+            color: #ddd;
+        }
+
+        .site-footer .footer-bottom {
+            text-align: center;
+            font-size: 0.9em;
+            color: #bbb;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar ul {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .navbar ul li {
+                margin: 8px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-bar">
+        <div class="left-info">
+            <span class="phone">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-phone">
+                    <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+                232 159 6250
+            </span>
+            <span class="email">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-mail">
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
+                becru_sa@outlook.com
+            </span>
+            <span class="address">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-map-pin">
+                    <path
+                        d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+                    <circle cx="12" cy="10" r="3" />
+                </svg>
+                Jorege Todd No. 101 Col. Santana Maloapan Martínez de La Torre
+            </span>
+        </div>
+        <div class="right-info">
+            <div class="social-icons">
+                <a href="https://www.facebook.com/becruasesor" target="_blank" rel="noopener" aria-label="Facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-facebook">
+                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <img src="/images/becru_logo.jpg" alt="BECRU Inmobiliaria Logo">
+            Becru Inmobiliaria
+        </a>
+        <ul>
+            <li><a href="#about">Sobre Nosotros</a></li>
+            <li><a href="#services">Servicios</a></li>
+            <li><a href="#propiedades">Propiedades</a></li>
+            <li><a href="#contact">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1 class="page-title">Propiedades</h1>
+        <div class="properties-grid">
+            <% if (properties && properties.length) { %>
+                <% properties.forEach((property)=> { %>
+                    <a href="/propiedades/<%= property.id %>" class="property-card">
+                        <img src="<%= property.coverImage ? property.coverImage.filepath : '/images/property-placeholder.jpg' %>"
+                            alt="Propiedad <%= property.title %>">
+                        <div class="card-content">
+                            <h3>
+                                <%= property.title %>
+                            </h3>
+                            <p>
+                                <%= property.ubication || 'Ubicación no disponible' %>
+                            </p>
+                            <div class="property-icons">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="icon icon-bed">
+                                        <path d="M3 20v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8" />
+                                        <path d="M5 10V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4" />
+                                        <path d="M3 18h18" />
+                                    </svg>
+                                    <%= property.number_of_rooms || 0 %>
+                                </span>
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="icon icon-shower">
+                                        <path d="M4 4l2.5 2.5" />
+                                        <path d="M13.5 6.5a4.95 4.95 0 0 0-7 7" />
+                                        <path d="M15 5L5 15" />
+                                        <path d="M14 17v.01" />
+                                        <path d="M10 16v.01" />
+                                        <path d="M13 13v.01" />
+                                        <path d="M16 10v.01" />
+                                        <path d="M11 20v.01" />
+                                        <path d="M17 14v.01" />
+                                        <path d="M20 11v.01" />
+                                    </svg>
+                                    <%= property.number_of_bathrooms || 0 %>
+                                </span>
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="icon icon-ruler">
+                                        <line x1="2" y1="22" x2="22" y2="2"></line>
+                                        <line x1="2" y1="2" x2="22" y2="22"></line>
+                                    </svg>
+                                    <%= property.area || '0 m²' %>
+                                </span>
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="icon icon-house">
+                                        <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+                                        <path
+                                            d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                    </svg>
+                                    <%= property.land_area || '0 m²' %>
+                                </span>
+                            </div>
+                            <div class="property-price">
+                                $<%= property.price.toLocaleString() %>
+                            </div>
+                            <span class="btn-view-more">Ver Más</span>
+                        </div>
+                    </a>
+                    <% }); %>
+                        <% } else { %>
+                            <p>No hay propiedades disponibles</p>
+                            <% } %>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-top">
+                <div class="footer-logo">
+                    <img src="/images/becru_logo.jpg" alt="BECRU Inmobiliaria Logo">
+                    <span>BECRU Inmobiliaria</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#about">Sobre Nosotros</a>
+                    <a href="#propiedades">Propiedades</a>
+                    <a href="#contact">Contacto</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 BECRU Inmobiliaria. Todos los derechos reservados.</p>
+                <p>Jorege Todd No. 101 Col. Santana Maloapan Martínez de La Torre
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
