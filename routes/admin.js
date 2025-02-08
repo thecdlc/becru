@@ -42,18 +42,28 @@ router.post('/login', async (req, res) => {
 
     try {
         const admin = await knex('admins').where({ username }).first();
+        console.log("admin found:", admin);
 
-        console.log("admin: ", admin)
         if (admin) {
             const match = await bcrypt.compare(password, admin.password);
+            console.log("password match:", match);
 
-            console.log("match? ", match)
             if (match) {
                 req.session.user = admin.username;
-                return res.redirect('/admin');
+                req.session.save((err) => {
+                    if (err) {
+                        console.error('Session save error:', err);
+                        return res.status(500).send('Error saving session');
+                    }
+                    console.log("Session saved:", req.session);
+                    return res.redirect('/admin');
+                });
+            } else {
+                res.render('login', { error: 'Invalid password' });
             }
+        } else {
+            res.render('login', { error: 'User not found' });
         }
-        res.render('login', { error: 'Credenciales inválidas. Por favor, intenta de nuevo.' });
     } catch (error) {
         console.error('Login Error:', error);
         res.status(500).send('Internal Server Error');

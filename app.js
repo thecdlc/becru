@@ -20,17 +20,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const store = new SQLiteStore({
     db: 'realestate.db',    
-    dir: './database',      
+    dir: path.join(__dirname, 'database'),
+    table: 'sessions'
 });
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'default-secret', 
-  resave: false, 
-  saveUninitialized: false, 
+  secret: process.env.SESSION_SECRET || 'default-secret',
+  resave: true,
+  saveUninitialized: true,
   store: store,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     sameSite: 'lax',
     maxAge: 1000 * 60 * 60 * 24 // 1 day
   }
