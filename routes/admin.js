@@ -41,8 +41,12 @@ router.post('/login', async (req, res) => {
 
     try {
         const admin = await knex('admins').where({ username }).first();
+
+        console.log("admin: ", admin)
         if (admin) {
             const match = await bcrypt.compare(password, admin.password);
+
+            console.log("match? ", match)
             if (match) {
                 req.session.user = admin.username;
                 return res.redirect('/admin');
