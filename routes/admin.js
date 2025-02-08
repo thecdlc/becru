@@ -6,6 +6,7 @@ const knex = require('../db');
 
 router.get('/', csrfProtection, async (req, res) => {
     if (!req.session.user) {
+        console.log("No user: ", req.session.user)
         return res.render('login', { error: null });
     }
 
