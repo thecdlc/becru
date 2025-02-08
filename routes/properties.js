@@ -16,7 +16,7 @@ const uploadFields = upload.fields([
 ]);
 
 
-router.get('/', isAuthenticated, csrfProtection, async (req, res) => {
+router.get('/',    csrfProtection, async (req, res) => {
   try {
     const rawProperties = await knex('properties').select('*');
     const properties = await Promise.all(

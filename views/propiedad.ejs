@@ -2,47 +2,184 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= property.title %> - BECRU Inmobiliaria</title>
   <link rel="stylesheet" href="/styles/propiedad.css">
+  <style>
+    .site-footer {
+      background-color: #1a1a1a;
+      color: #fff;
+      padding: 4rem 0 2rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-section h4 {
+      color: #fff;
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .footer-section h4::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -0.5rem;
+      width: 50px;
+      height: 2px;
+      background-color: #D32F2F;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .footer-logo img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+
+    .footer-description {
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.8rem;
+    }
+
+    .footer-links a {
+      color: #999;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: #D32F2F;
+    }
+
+    .footer-contact .contact-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      color: #999;
+    }
+
+    .footer-contact svg {
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .social-links a {
+      color: #999;
+      transition: color 0.3s;
+    }
+
+    .social-links a:hover {
+      color: #D32F2F;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #333;
+      padding-top: 2rem;
+      text-align: center;
+      color: #999;
+    }
+
+    @media (max-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-section {
+        text-align: center;
+      }
+      
+      .footer-section h4::after {
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      
+      .footer-logo {
+        justify-content: center;
+      }
+      
+      .footer-contact .contact-item {
+        justify-content: center;
+      }
+      
+      .social-links {
+        justify-content: center;
+      }
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
-    <a href="/" class="logo">BECRU Inmobiliaria</a>
+    <a href="/" class="logo">
+      <img src="/images/becru_logo.jpg" alt="BECRU Logo">
+      <span>BECRU Inmobiliaria</span>
+    </a>
+    <div class="menu-toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
     <ul>
       <li><a href="/">Inicio</a></li>
       <li><a href="/propiedades">Propiedades</a></li>
       <li><a href="/contact">Contacto</a></li>
     </ul>
   </nav>
-
+  <script>
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navbarMenu = document.querySelector('.navbar ul');
+    menuToggle.addEventListener('click', function() {
+      this.classList.toggle('active');
+      navbarMenu.classList.toggle('active');
+    });
+    navbarMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        menuToggle.classList.remove('active');
+        navbarMenu.classList.remove('active');
+      });
+    });
+  </script>
   <div class="container">
     <div class="header">
       <div class="title-row">
         <h1><%= property.title %></h1>
         <span class="price">$<%= property.price.toLocaleString('es-ES') %></span>
       </div>
-      
-      <!-- Address row with icon -->
       <div class="address">
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          width="16" 
-          height="16" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          stroke-width="2" 
-          stroke-linecap="round" 
-          stroke-linejoin="round" 
-          class="icon-map-pin"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-map-pin">
           <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
           <circle cx="12" cy="10" r="3"/>
         </svg>
         <span><%= property.ubication || 'Ubicación no especificada' %></span>
       </div>
     </div>
-
     <% 
       let sortedImages = [...images];
       if (property.cover_image_id) {
@@ -53,41 +190,27 @@
         }
       }
     %>
-
     <% if (sortedImages.length > 0) { %>
       <div class="cover-and-thumbs">
         <div class="cover-image">
-          <img
-            src="<%= sortedImages[0].filepath %>"
-            alt="Portada <%= property.title %>"
-            onclick="openLightbox(0)"
-          >
+          <img src="<%= sortedImages[0].filepath %>" alt="Portada <%= property.title %>" onclick="openLightbox(0)">
+          <div class="image-counter">1/<%= sortedImages.length %></div>
         </div>
         <div class="thumbs">
           <% for (let i = 1; i < sortedImages.length && i < 5; i++) { %>
-            <img
-              src="<%= sortedImages[i].filepath %>"
-              alt="<%= property.title %>"
-              onclick="openLightbox(<%= i %>)"
-            >
+            <img src="<%= sortedImages[i].filepath %>" alt="<%= property.title %>" onclick="openLightbox(<%= i %>)">
           <% } %>
-          <button class="btn-see-all" onclick="openLightbox(0)">
-            Ver todas <%= sortedImages.length %> fotos
-          </button>
+          <button class="btn-see-all" onclick="openLightbox(0)">Ver todas <%= sortedImages.length %> fotos</button>
         </div>
       </div>
     <% } else { %>
       <p class="no-images">Sin imágenes para esta propiedad.</p>
     <% } %>
-
     <div class="vista-general">
       <div class="header-vista">
         <h2>Vista General</h2>
         <a href="/propiedades/<%= property.id %>/pdf" target="_blank" class="btn-print" title="Generar PDF">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-               viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-               class="lucide lucide-printer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer">
             <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
             <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/>
             <rect x="6" y="14" width="12" height="8" rx="1"/>
@@ -121,60 +244,22 @@
         </div>
       </div>
     </div>
-    
-    
-
     <div class="desc-form">
       <div class="main-info">
         <h2>Descripción</h2>
         <p><%= property.description || 'Sin descripción disponible.' %></p>
       </div>
-
       <div class="contact-agent">
         <h2>Contáctanos</h2>
         <form action="/contact" method="POST">
-        
-          
-          <input
-            type="text"
-            name="name"
-            placeholder="Nombre"
-            required
-          >
-          <input
-            type="email"
-            name="email"
-            placeholder="Correo Electrónico"
-            required
-          >
-          <input
-            type="text"
-            name="phone"
-            placeholder="Número"
-            required
-          >
-          <textarea
-            name="message"
-            rows="4"
-            placeholder="Mensaje..."
-          >
-Estoy interesado(a) en esta propiedad.
-          </textarea>
-
+          <input type="text" name="name" placeholder="Nombre" required>
+          <input type="email" name="email" placeholder="Correo Electrónico" required>
+          <input type="text" name="phone" placeholder="Número" required>
+          <textarea name="message" rows="4">Estoy interesado(a) en esta propiedad.</textarea>
           <div class="form-buttons">
             <button type="submit" class="btn-contactar">
               Contactar
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="20" height="20"
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                stroke-width="2"
-                stroke-linecap="round" 
-                stroke-linejoin="round"
-                style="margin-left: 6px; vertical-align: middle;"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 6px; vertical-align: middle;">
                 <rect width="20" height="16" x="2" y="4" rx="2"/>
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
               </svg>
@@ -184,24 +269,25 @@ Estoy interesado(a) en esta propiedad.
       </div>
     </div>
   </div>
-
   <div class="lightbox" id="lightbox">
-    <span class="close-btn" onclick="closeLightbox()">&times;</span>
-    <span class="arrow arrow-prev" onclick="prevImage()">&#10094;</span>
-    <span class="arrow arrow-next" onclick="nextImage()">&#10095;</span>
-
-    <div class="lightbox-content">
-      <img id="lightboxImage" src="" alt="Propiedad">
+    <div class="lightbox-header">
+      <button class="lightbox-back" onclick="closeLightbox()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"/>
+          <path d="M12 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <div class="lightbox-counter" id="lightboxCounter"></div>
     </div>
-    <div class="lightbox-counter" id="lightboxCounter"></div>
+    <div class="lightbox-content" id="lightboxContent"></div>
+    <div class="arrow arrow-prev" onclick="prevImage()">&#10094;</div>
+    <div class="arrow arrow-next" onclick="nextImage()">&#10095;</div>
   </div>
-
   <% if (property.latitude && property.longitude) { %>
     <div class="map-section">
       <h2>Ubicación</h2>
       <div id="map" style="width: 100%; height: 300px;"></div>
     </div>
-
     <script>
       function initMap() {
         const lat = <%= property.latitude %>;
@@ -211,7 +297,6 @@ Estoy interesado(a) en esta propiedad.
           center: mapCenter,
           zoom: 15
         });
-
         new google.maps.Marker({
           position: mapCenter,
           map,
@@ -219,13 +304,10 @@ Estoy interesado(a) en esta propiedad.
         });
       }
     </script>
-    <script async defer 
-      src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_MAPS_API_KEY %>&callback=initMap">
-    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= process.env.GOOGLE_MAPS_API_KEY %>&callback=initMap"></script>
   <% } else { %>
     <p style="margin-top: 30px;">Ubicación no disponible en el mapa.</p>
   <% } %>
-
   <% if (featuredProps && featuredProps.length > 0) { %>
     <section class="featured-section">
       <h2>Podría Interesarte</h2>
@@ -233,10 +315,7 @@ Estoy interesado(a) en esta propiedad.
         <% featuredProps.forEach((fp) => { %>
           <div class="featured-card">
             <a href="/propiedades/<%= fp.id %>">
-              <img 
-                src="<%= fp.coverFilepath || '/images/property-placeholder.jpg' %>" 
-                alt="<%= fp.title %>"
-              >
+              <img src="<%= fp.coverFilepath || '/images/property-placeholder.jpg' %>" alt="<%= fp.title %>">
               <div class="featured-card-overlay">
                 <button class="btn-ver-detalles">
                   Ver detalles
@@ -300,71 +379,142 @@ Estoy interesado(a) en esta propiedad.
                 </div>
               </div>
             </div>
-            
           </div>
         <% }) %>
       </div>
     </section>
   <% } %>
-
   <footer class="site-footer">
-    <div class="footer-content">
-      <div class="footer-top">
-        <div class="footer-logo">
-          <img src="/images/becru_logo.jpg" alt="BECRU Inmobiliaria Logo">
-          <span>BECRU Inmobiliaria</span>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <div class="footer-logo">
+            <img src="/images/becru_logo.jpg" alt="BECRU Inmobiliaria">
+            <h3>BECRU Inmobiliaria</h3>
+          </div>
+          <p class="footer-description">Construyendo sueños y hogares de calidad en Martínez de la Torre y alrededores.</p>
         </div>
-        <div class="footer-links">
-          <a href="#about">Sobre Nosotros</a>
-          <a href="#propiedades">Propiedades</a>
-          <a href="#contact">Contacto</a>
+
+        <div class="footer-section">
+          <h4>Enlaces Rápidos</h4>
+          <ul class="footer-links">
+            <li><a href="/">Inicio</a></li>
+            <li><a href="#about">Sobre Nosotros</a></li>
+            <li><a href="#properties">Propiedades</a></li>
+            <li><a href="#contact">Contacto</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h4>Contáctanos</h4>
+          <div class="footer-contact">
+            <div class="contact-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              <span>232 159 6250</span>
+            </div>
+            <div class="contact-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+              <span>becru_sa@outlook.com</span>
+            </div>
+            <div class="contact-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>Jorege Todd No. 101, Col. Santana Maloapan Martínez de La Torre</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h4>Síguenos</h4>
+          <div class="social-links">
+            <a href="https://www.facebook.com/becruasesor" target="_blank" aria-label="Facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
+      
       <div class="footer-bottom">
-        <p>© 2025 BECRU Inmobiliaria. Todos los derechos reservados.</p>
-        <p>Jorege Todd No. 101 Col. Santana Maloapan Martínez de La Torre</p>
+        <p>&copy; 2025 BECRU Inmobiliaria. Todos los derechos reservados.</p>
       </div>
     </div>
   </footer>
-
-
   <script>
     window.IMAGES_ARRAY = <%- JSON.stringify(sortedImages.map(img => img.filepath)) %>;
-
     let currentIndex = 0;
     const imagesArray = window.IMAGES_ARRAY || [];
     const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightboxImage');
     const lightboxCounter = document.getElementById('lightboxCounter');
-
     function openLightbox(index) {
       if (!imagesArray.length) return;
       currentIndex = index;
-      updateLightboxImage();
+      const content = document.getElementById('lightboxContent');
+      content.innerHTML = '';
+      imagesArray.forEach((src, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'lightbox-slide' + (i === index ? ' active' : '');
+        slide.innerHTML = `<img src="${src}" alt="Propiedad ${i + 1}">`;
+        content.appendChild(slide);
+      });
+      updateLightboxCounter();
       lightbox.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      if (window.innerWidth < 768) {
+        content.scrollTo({
+          left: content.children[index].offsetLeft,
+          behavior: 'instant'
+        });
+        content.addEventListener('scroll', handleScroll);
+      }
     }
-
     function closeLightbox() {
       lightbox.style.display = 'none';
+      document.getElementById('lightboxContent').removeEventListener('scroll', handleScroll);
+      document.body.style.overflow = '';
     }
-
-    function prevImage() {
-      currentIndex = (currentIndex === 0)
-        ? imagesArray.length - 1
-        : currentIndex - 1;
-      updateLightboxImage();
+    function handleScroll() {
+      const content = document.getElementById('lightboxContent');
+      const slideWidth = content.offsetWidth;
+      const scrollPosition = content.scrollLeft;
+      currentIndex = Math.round(scrollPosition / slideWidth);
+      updateLightboxCounter();
     }
-
+    function updateLightboxCounter() {
+      document.getElementById('lightboxCounter').textContent = `${currentIndex + 1} / ${imagesArray.length}`;
+    }
+    function showSlide(index) {
+      const slides = document.querySelectorAll('.lightbox-slide');
+      if (slides.length === 0) return;
+      if (index < 0) {
+        index = slides.length - 1;
+      } else if (index >= slides.length) {
+        index = 0;
+      }
+      currentIndex = index;
+      slides.forEach((slide, i) => {
+        if (i === index) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+      updateLightboxCounter();
+    }
     function nextImage() {
-      currentIndex = (currentIndex + 1) % imagesArray.length;
-      updateLightboxImage();
+      showSlide(currentIndex + 1);
     }
-
-    function updateLightboxImage() {
-      lightboxImg.src = imagesArray[currentIndex];
-      lightboxCounter.textContent = `${currentIndex + 1}/${imagesArray.length}`;
+    function prevImage() {
+      showSlide(currentIndex - 1);
     }
-
     window.onclick = function(e) {
       if (e.target === lightbox) {
         closeLightbox();

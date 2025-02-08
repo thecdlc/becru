@@ -60,6 +60,8 @@ app.get("/", async (req, res) => {
   try {
     const rawProperties = await knex("properties")
       .whereNotNull("cover_image_id")
+      .orderBy("updated_at", "desc")
+      .limit(3)
       .select("*");
 
     const properties = await Promise.all(
