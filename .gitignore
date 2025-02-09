@@ -1,3 +1,4 @@
 .env
 node_modules/
 database/realestate.db
+scripts/manage-admin-prod.js
