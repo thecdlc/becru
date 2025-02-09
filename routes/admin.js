@@ -59,10 +59,10 @@ router.post('/login', async (req, res) => {
                     return res.redirect('/admin');
                 });
             } else {
-                res.render('login', { error: 'Invalid password' });
+                res.render('login', { error: 'Credenciales inválidas. Por favor, intenta de nuevo.' });
             }
         } else {
-            res.render('login', { error: 'User not found' });
+            res.render('login', { error: 'Credenciales inválidas. Por favor, intenta de nuevo.' });
         }
     } catch (error) {
         console.error('Login Error:', error);

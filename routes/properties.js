@@ -233,6 +233,7 @@ router.get('/:id/pdf', async (req, res) => {
 
 router.post('/', isAuthenticated, uploadFields, csrfProtection, async (req, res) => {
   try {
+    console.log('Starting property creation process...');
     const {
       title,
       description,
@@ -244,6 +245,7 @@ router.post('/', isAuthenticated, uploadFields, csrfProtection, async (req, res)
       built_area
     } = req.body;
 
+    console.log('Creating base property record...');
     const [propertyId] = await knex('properties').insert({
       title,
       description,
@@ -256,14 +258,13 @@ router.post('/', isAuthenticated, uploadFields, csrfProtection, async (req, res)
       created_at: new Date(),
       updated_at: new Date(),
     });
+    console.log(`Base property created with ID: ${propertyId}`);
 
     let coverImageId = null;
-
     if (req.files && req.files.cover && req.files.cover.length > 0) {
-
+      console.log('Processing cover image...');
       const coverFile = req.files.cover[0];
-
-      console.log('cover: ', coverFile)
+      console.log('Cover file details:', coverFile.filename);
       const [coverImageRecordId] = await knex('images').insert({
         property_id: propertyId,
         filename: coverFile.originalname,
@@ -271,9 +272,11 @@ router.post('/', isAuthenticated, uploadFields, csrfProtection, async (req, res)
         created_at: new Date(),
       });
       coverImageId = coverImageRecordId;
+      console.log(`Cover image processed and saved with ID: ${coverImageId}`);
     }
 
     if (req.files && req.files.images && req.files.images.length > 0) {
+      console.log(`Processing ${req.files.images.length} additional images...`);
       const imagesData = req.files.images.map(file => ({
         property_id: propertyId,
         filename: file.originalname,
@@ -281,9 +284,11 @@ router.post('/', isAuthenticated, uploadFields, csrfProtection, async (req, res)
         created_at: new Date(),
       }));
       await knex('images').insert(imagesData);
+      console.log('Additional images processed and saved');
     }
 
     if (coverImageId) {
+      console.log('Updating property with cover image reference...');
       await knex('properties')
         .where({ id: propertyId })
         .update({
@@ -293,26 +298,46 @@ router.post('/', isAuthenticated, uploadFields, csrfProtection, async (req, res)
     }
 
     if (ubication) {
+      console.log('Starting geocoding process...');
       const encodedAddress = encodeURIComponent(ubication);
-      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${process.env.GOOGLE_GEOCODING_API_KEY}`;
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
 
-      const response = await axios.get(url);
-      const data = response.data;
+      try {
+        console.log('Sending geocoding request for address:', ubication);
+        const response = await axios.get(url);
+        const data = response.data;
 
-      if (data.status === 'OK') {
-        const { lat, lng } = data.results[0].geometry.location;
-        await knex('properties')
-          .where({ id: propertyId })
-          .update({
-            latitude: lat,
-            longitude: lng,
-            updated_at: new Date(),
+        console.log('Geocoding API response status:', data.status);
+        if (data.status === 'OK') {
+          console.log('Geocoding successful, updating coordinates...');
+          const { lat, lng } = data.results[0].geometry.location;
+          await knex('properties')
+            .where({ id: propertyId })
+            .update({
+              latitude: lat,
+              longitude: lng,
+              updated_at: new Date(),
+            });
+          console.log('Coordinates updated:', { lat, lng });
+        } else {
+          console.warn('Geocoding failed. Details:', {
+            status: data.status,
+            errorMessage: data.error_message,
+            results: data.results,
+            address: ubication
           });
-      } else {
-        console.warn('Geocoding failed:', data.status);
+        }
+      } catch (error) {
+        console.error('Geocoding request failed:', {
+          error: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          address: ubication
+        });
       }
     }
 
+    console.log('Property creation process completed successfully');
     res.redirect('/admin');
   } catch (error) {
     console.error('Error creating property:', error);
@@ -342,6 +367,7 @@ router.get('/:id/editar', isAuthenticated, csrfProtection, async (req, res) => {
 
 router.post('/:id/editar', isAuthenticated, uploadFields, csrfProtection, async (req, res) => {
   try {
+    console.log('Starting property update process...');
     const { id } = req.params;
     const {
       title,
@@ -354,8 +380,10 @@ router.post('/:id/editar', isAuthenticated, uploadFields, csrfProtection, async 
       built_area
     } = req.body;
 
+    console.log(`Fetching existing property with ID: ${id}`);
     const existingProperty = await knex('properties').where({ id }).first();
     if (!existingProperty) {
+      console.log('Property not found');
       return res.status(404).send('Propiedad no encontrada');
     }
 
@@ -371,13 +399,48 @@ router.post('/:id/editar', isAuthenticated, uploadFields, csrfProtection, async 
       updated_at: new Date(),
     };
 
-    console.log(req.files)
-    if (req.files && req.files.cover && req.files.cover[0]) {
-      const coverFile = req.files.cover[0];
+    if (ubication && ubication !== existingProperty.ubication) {
+      console.log('Location changed, starting geocoding process...');
+      const encodedAddress = encodeURIComponent(ubication);
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+      
+      try {
+        console.log('Sending geocoding request for address:', ubication);
+        const response = await axios.get(url);
+        const data = response.data;
 
-      console.log(coverFile);
+        console.log('Geocoding API response status:', data.status);
+        if (data.status === 'OK') {
+          console.log('Geocoding successful, updating coordinates...');
+          const { lat, lng } = data.results[0].geometry.location;
+          updateData.latitude = lat;
+          updateData.longitude = lng;
+          console.log('New coordinates:', { lat, lng });
+        } else {
+          console.warn('Geocoding failed. Details:', {
+            status: data.status,
+            errorMessage: data.error_message,
+            results: data.results,
+            address: ubication
+          });
+        }
+      } catch (error) {
+        console.error('Geocoding request failed:', {
+          error: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          address: ubication
+        });
+      }
+    }
+
+    if (req.files && req.files.cover && req.files.cover[0]) {
+      console.log('Processing new cover image...');
+      const coverFile = req.files.cover[0];
+      console.log('New cover file details:', coverFile.filename);
 
       if (existingProperty.cover_image_id) {
+        console.log('Removing old cover image...');
         await knex('images').where({ id: existingProperty.cover_image_id }).del();
       }
 
@@ -389,9 +452,11 @@ router.post('/:id/editar', isAuthenticated, uploadFields, csrfProtection, async 
       });
 
       updateData.cover_image_id = coverImageId;
+      console.log(`New cover image processed and saved with ID: ${coverImageId}`);
     }
 
     if (req.files && req.files.images && req.files.images.length > 0) {
+      console.log(`Processing ${req.files.images.length} additional images...`);
       const imagesData = req.files.images.map(file => ({
         property_id: id,
         filename: file.originalname,
@@ -399,11 +464,13 @@ router.post('/:id/editar', isAuthenticated, uploadFields, csrfProtection, async 
         created_at: new Date(),
       }));
       await knex('images').insert(imagesData);
+      console.log('Additional images processed and saved');
     }
 
-
+    console.log('Updating property record...');
     await knex('properties').where({ id }).update(updateData);
-
+    console.log('Property update process completed successfully');
+    
     res.redirect('/admin');
   } catch (error) {
     console.error('Error updating property:', error);

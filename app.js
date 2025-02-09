@@ -38,15 +38,15 @@ app.use(session({
 }));
 
 
-function sessionLogger(req, res, next) {
+/* function sessionLogger(req, res, next) {
   console.log('--- Session State ---');
   console.log('Session ID:', req.sessionID);
   console.log('Session Data:', req.session);
   console.log('---------------------');
   next();
-}
+} */
 
-app.use(sessionLogger);
+//app.use(sessionLogger);
 
 app.use((req, res, next) => {
   res.locals.session = req.session;
