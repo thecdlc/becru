@@ -648,3 +648,8 @@ section h2 {
     font-size: 2em;
   }
 }
+
+.btn-primary:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+}

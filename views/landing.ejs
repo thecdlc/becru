@@ -427,7 +427,7 @@
     <section id="contact" class="contact">
       <div class="container">
         <h2>Contáctanos</h2>
-        <form action="/contact" method="POST">
+        <form id="contact-form" action="/contact" method="POST">
           <div class="form-group">
             <label for="name">Nombre</label>
             <input type="text" id="name" name="name" required>
@@ -440,10 +440,12 @@
             <label for="message">Mensaje</label>
             <textarea id="message" name="message" rows="5" required></textarea>
           </div>
-          <button type="submit" class="btn-primary">Enviar Mensaje</button>
+          <button type="submit" id="submit-button" class="btn-primary">Enviar Mensaje</button>
         </form>
       </div>
     </section>
+
+
   </main>
   <footer class="site-footer">
     <div class="f-container">
@@ -512,6 +514,20 @@
       </div>
     </div>
   </footer>
+
+  // Replace the existing contact form script with this one:
+<script>
+  document.getElementById('contact-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const submitButton = document.getElementById('submit-button');
+
+    submitButton.textContent = 'Mensaje enviado ✓';
+    submitButton.style.backgroundColor = '#4CAF50';
+    submitButton.disabled = true;
+    form.reset();
+  });
+</script>
 </body>
 
 </html>

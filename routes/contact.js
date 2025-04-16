@@ -3,6 +3,7 @@ const router = express.Router()
 const nodemailer = require('nodemailer')
 
 router.post('/', async (req, res) => {
+  console.log("THis ran");
   const { name, email, phone, message } = req.body
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
