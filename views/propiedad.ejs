@@ -249,15 +249,16 @@
         <h2>Descripción</h2>
         <p><%= property.description || 'Sin descripción disponible.' %></p>
       </div>
+
       <div class="contact-agent">
         <h2>Contáctanos</h2>
-        <form action="/contact" method="POST">
+        <form id="contact-form" action="/contact" method="POST">
           <input type="text" name="name" placeholder="Nombre" required>
           <input type="email" name="email" placeholder="Correo Electrónico" required>
           <input type="text" name="phone" placeholder="Número" required>
           <textarea name="message" rows="4">Estoy interesado(a) en esta propiedad.</textarea>
           <div class="form-buttons">
-            <button type="submit" class="btn-contactar">
+            <button type="submit" id="submit-button" class="btn-contactar">
               Contactar
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 6px; vertical-align: middle;">
                 <rect width="20" height="16" x="2" y="4" rx="2"/>
@@ -520,6 +521,18 @@
         closeLightbox();
       }
     }
+
+    document.getElementById('contact-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const submitButton = document.getElementById('submit-button');
+
+    submitButton.textContent = 'Mensaje enviado ✓';
+    submitButton.style.backgroundColor = '#4CAF50';
+    submitButton.style.opacity = '1';
+    submitButton.disabled = true;
+    form.reset();
+  });
   </script>
 </body>
 </html>
