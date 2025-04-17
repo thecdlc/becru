@@ -101,14 +101,19 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-const server = app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
 
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () =>
+    console.log(`Server running at http://localhost:${PORT}`)
+  );
 
-function shutdown() {
-  console.log('Shutting down server...');
-  server.close(() => {
-    process.exit(0);
-  });
+  process.on('SIGTERM', () => shutdown(server));
+  process.on('SIGINT',  () => shutdown(server));
+
+  function shutdown(srv) {
+    console.log('Shutting down server…');
+    srv.close(() => process.exit(0));
+  }
 }
+
+module.exports = app;
