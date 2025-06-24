@@ -3,3 +3,4 @@ node_modules/
 database/realestate.db
 scripts/manage-admin-prod.js
 /coverage
+/public/uploads
